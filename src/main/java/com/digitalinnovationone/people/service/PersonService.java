@@ -23,13 +23,7 @@ public class PersonService {
 	}
 
 	public Person save(PersonRequest form) {
-		Person person = Person.builder()
-				.firstName(form.getFirstName())
-				.lastName(form.getLastName())
-				.cpf(form.getCpf())
-				.birthDate(MyDateFormat.toLocalDate(form.getBirthDate()))
-				.phones(form.getPhones())
-				.build();
+		Person person = buildPerson(form);
 		
 		Person savedPerson = personRepository.save(person);
 		return savedPerson;
@@ -44,10 +38,22 @@ public class PersonService {
 		return person;
 	}
 
+	public Person update(Long id, PersonRequest form) {
+		existsById(id);
+		
+		Person personToUpdate = buildPerson(form);
+		personToUpdate.setId(id);
+		
+		try {
+			return personRepository.save(personToUpdate);
+		} catch (Exception e) {
+			throw new DbException("Error when trying to update a person");
+		}
+	}
 	
 	public void deleteById(Long id) {
-		@SuppressWarnings("unused")
-		Person person = existsById(id);
+		
+		existsById(id);
 		
 		try {
 			personRepository.deleteById(id);
@@ -59,6 +65,18 @@ public class PersonService {
 	private Person existsById(Long id) {
 		Person person = personRepository.findById(id).orElseThrow(() -> new PersonNotFoundException(id));
 		return person;
+	}
+	
+	private Person buildPerson(PersonRequest form) {
+		
+		return Person.builder()
+			.firstName(form.getFirstName())
+			.lastName(form.getLastName())
+			.cpf(form.getCpf())
+			.birthDate(MyDateFormat.toLocalDate(form.getBirthDate()))
+			.phones(form.getPhones())
+			.build();
+		
 	}
 	
 }
