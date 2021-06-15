@@ -1,9 +1,12 @@
 package com.digitalinnovationone.people.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.digitalinnovationone.people.dto.request.PersonRequest;
+import com.digitalinnovationone.people.exception.PersonNotFoundException;
 import com.digitalinnovationone.people.model.Person;
 import com.digitalinnovationone.people.repository.PersonRepository;
 import com.digitalinnovationone.people.util.MyDateFormat;
@@ -29,6 +32,15 @@ public class PersonService {
 		
 		Person savedPerson = personRepository.save(person);
 		return savedPerson;
+	}
+	
+	public List<Person> getAll() {
+		return personRepository.findAll();
+	}
+
+	public Person findById(Long id) {
+		Person person = personRepository.findById(id).orElseThrow(() -> new PersonNotFoundException(id));
+		return person;
 	}
 	
 }

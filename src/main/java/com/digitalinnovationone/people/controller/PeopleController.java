@@ -1,11 +1,18 @@
 package com.digitalinnovationone.people.controller;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.digitalinnovationone.people.dto.request.PersonRequest;
@@ -23,16 +30,34 @@ public class PeopleController {
 	public PeopleController(PersonService personService) {
 		this.personService = personService;
 	}
+	
+	@GetMapping
+	public List<PersonResponse>listAll() {
+		return personService.getAll().stream().map(this::toPersonResponse).collect(Collectors.toList());
+	}
+	
+	@GetMapping("/{id}")
+	public PersonResponse getById(@PathVariable(required = true, name = "id") Long id) {
+		
+		Person person = personService.findById(id);
+		
+		return toPersonResponse(person);
+	}
 
-	@PostMapping
+	@PostMapping @ResponseStatus(HttpStatus.CREATED)
 	public PersonResponse createPerson(@RequestBody @Valid PersonRequest form) {
 		
 		Person savedPerson = personService.save(form);
 		
+		return toPersonResponse(savedPerson);
+	}
+	
+	private PersonResponse toPersonResponse(Person person) {
+		
 		return PersonResponse.builder()
-				.firstName(savedPerson.getFirstName())
-				.cpf(form.getCpf())
-				.phones(form.getPhones())
+				.firstName(person.getFirstName())
+				.cpf(person.getCpf())
+				.phones(person.getPhones())
 				.build();
 	}
 
