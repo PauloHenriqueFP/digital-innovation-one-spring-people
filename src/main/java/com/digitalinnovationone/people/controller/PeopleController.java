@@ -1,5 +1,7 @@
 package com.digitalinnovationone.people.controller;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,7 +25,7 @@ public class PeopleController {
 	}
 
 	@PostMapping
-	public PersonResponse createPerson(@RequestBody PersonRequest form) {
+	public PersonResponse createPerson(@RequestBody @Valid PersonRequest form) {
 		
 		Person savedPerson = personService.save(form);
 		
